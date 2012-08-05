@@ -7780,5 +7780,8 @@
 
     <string name="automatic_storage_manager_freed_bytes"><xliff:g id="size" example="3.25MB">%1$s</xliff:g> total made available\n\nLast ran on <xliff:g id="date" example="Jan 12">%2$s</xliff:g></string>
 
+   <!-- Buttons - Enable navbar -->
+   <string name="disable_navkeys_title">Enable on-screen nav bar</string>
+   <string name="disable_navkeys_summary">Enable on-screen navigation bar and disable hardware buttons</string>
 
 </resources>
