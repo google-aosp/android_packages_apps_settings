@@ -7856,6 +7856,9 @@
 
     <!-- Section title for the Domain URL app preference list [CHAR LIMIT=60]-->
     <string name="domain_url_section_title">Installed apps</string>
+   <!-- Buttons - Enable navbar -->
+   <string name="disable_navkeys_title">Enable on-screen nav bar</string>
+   <string name="disable_navkeys_summary">Enable on-screen navigation bar and disable hardware buttons</string>
 
     <!-- Warning when activating the automatic storage manager on legacy devices. [CHAR LIMIT=NONE] -->
     <string name="automatic_storage_manager_activation_warning">Your storage is now being managed by the storage manager</string>
