@@ -55,4 +55,8 @@
     <!-- When true enable gesture setting. -->
     <bool name="config_gesture_settings_enabled">false</bool>
 
+    <!-- KeyDisabler -->
+    <bool name="config_canDisableHardwareKeys">false</bool>
+    <string name="config_KeyDisablerPath" translatable="false">0</string>
+
 </resources>
