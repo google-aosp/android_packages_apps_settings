@@ -71,8 +71,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.accessibility.AccessibilityManager;
-import android.webkit.IWebViewUpdateService;
-import android.webkit.WebViewProviderInfo;
 import android.widget.Switch;
 import android.widget.Toast;
 
@@ -115,7 +113,6 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
     private static final String ENABLE_TERMINAL = "enable_terminal";
     private static final String KEEP_SCREEN_ON = "keep_screen_on";
     private static final String BT_HCI_SNOOP_LOG = "bt_hci_snoop_log";
-    private static final String WEBVIEW_PROVIDER_KEY = "select_webview_provider";
     private static final String ENABLE_OEM_UNLOCK = "oem_unlock_enable";
     private static final String HDCP_CHECKING_KEY = "hdcp_checking";
     private static final String HDCP_CHECKING_PROPERTY = "persist.sys.hdcp_checking";
@@ -276,7 +273,6 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
     private ListPreference mTransitionAnimationScale;
     private ListPreference mAnimatorDurationScale;
     private ListPreference mOverlayDisplayDevices;
-    private ListPreference mWebViewProvider;
 
     private ListPreference mSimulateColorSpace;
 
@@ -417,7 +413,6 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
         mMobileDataAlwaysOn = findAndInitSwitchPref(MOBILE_DATA_ALWAYS_ON);
         mLogdSize = addListPreference(SELECT_LOGD_SIZE_KEY);
         mUsbConfiguration = addListPreference(USB_CONFIGURATION_KEY);
-        mWebViewProvider = addListPreference(WEBVIEW_PROVIDER_KEY);
         mBluetoothDisableAbsVolume = findAndInitSwitchPref(BLUETOOTH_DISABLE_ABSOLUTE_VOLUME_KEY);
 
         mWindowAnimationScale = addListPreference(WINDOW_ANIMATION_SCALE_KEY);
@@ -471,7 +466,6 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
             removePreference(KEY_COLOR_MODE);
             mColorModePreference = null;
         }
-        updateWebViewProviderOptions();
 
         mColorTemperaturePreference = (SwitchPreference) findPreference(COLOR_TEMPERATURE_KEY);
         if (getResources().getBoolean(R.bool.config_enableColorTemperature)) {
@@ -690,7 +684,6 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
         updateSimulateColorSpace();
         updateUSBAudioOptions();
         updateForceResizableOptions();
-        updateWebViewProviderOptions();
         updateOemUnlockOptions();
         if (mColorTemperaturePreference != null) {
             updateColorTemperature();
@@ -722,35 +715,6 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
         updateAllOptions();
         mDontPokeProperties = false;
         pokeSystemProperties();
-    }
-
-    private void updateWebViewProviderOptions() {
-        IWebViewUpdateService webViewUpdateService  =
-            IWebViewUpdateService.Stub.asInterface(ServiceManager.getService("webviewupdate"));
-        try {
-            WebViewProviderInfo[] providers = webViewUpdateService.getValidWebViewPackages();
-            String[] options = new String[providers.length];
-            String[] values = new String[providers.length];
-            for(int n = 0; n < providers.length; n++) {
-                options[n] = providers[n].description;
-                values[n] = providers[n].packageName;
-            }
-            mWebViewProvider.setEntries(options);
-            mWebViewProvider.setEntryValues(values);
-
-            String value = webViewUpdateService.getCurrentWebViewPackageName();
-            if (value == null) {
-                value = "";
-            }
-
-            for (int i = 0; i < values.length; i++) {
-                if (value.contentEquals(values[i])) {
-                    mWebViewProvider.setValueIndex(i);
-                    return;
-                }
-            }
-        } catch(RemoteException e) {
-        }
     }
 
     private void updateHdcpValues() {
@@ -790,18 +754,6 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
         Settings.Secure.putInt(getActivity().getContentResolver(),
                 Settings.Secure.BLUETOOTH_HCI_LOG,
                 mBtHciSnoopLog.isChecked() ? 1 : 0);
-    }
-
-    private void writeWebViewProviderOptions(Object newValue) {
-        IWebViewUpdateService webViewUpdateService  =
-            IWebViewUpdateService.Stub.asInterface(ServiceManager.getService("webviewupdate"));
-
-        try {
-            webViewUpdateService.changeProviderAndSetting(
-                    newValue == null ? "" : newValue.toString());
-            updateWebViewProviderOptions();
-        } catch(RemoteException e) {
-        }
     }
 
     private void writeDebuggerOptions() {
@@ -1896,9 +1848,6 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
             SystemProperties.set(HDCP_CHECKING_PROPERTY, newValue.toString());
             updateHdcpValues();
             pokeSystemProperties();
-            return true;
-        } else if (preference == mWebViewProvider) {
-            writeWebViewProviderOptions(newValue);
             return true;
         } else if (preference == mLogdSize) {
             writeLogdSizeOption(newValue);
