@@ -1896,9 +1896,20 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
 
     private boolean isPackageEnabled(String packageName) {
         try {
-            return getActivity().getPackageManager().getApplicationInfo(packageName, 0).enabled;
+            PackageManager pm = getActivity().getPackageManager();
+            int enabled_state = pm.getApplicationEnabledSetting(packageName);
+            switch (enabled_state) {
+                case PackageManager.COMPONENT_ENABLED_STATE_ENABLED:
+                    return true;
+                case PackageManager.COMPONENT_ENABLED_STATE_DEFAULT:
+                    return pm.getPackageInfo(packageName, 0).applicationInfo.enabled;
+                default:
+                    return false;
+            }
         } catch (NameNotFoundException e) {
-            // Thrown by PackageManager.getApplicationInfo if the package does not exist
+            // Thrown by PackageManager.getPackageInfo if the package does not exist
+        } catch (IllegalArgumentException e) {
+            // Thrown by PackageManager.getApplicationEnabledSetting if the package does not exist
         }
         return false;
     }
