@@ -1894,38 +1894,6 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
                 requestCode, resources.getString(R.string.oem_unlock_enable));
     }
 
-    private boolean isPackageEnabled(String packageName) {
-        try {
-            PackageManager pm = getActivity().getPackageManager();
-            int enabled_state = pm.getApplicationEnabledSetting(packageName);
-            switch (enabled_state) {
-                case PackageManager.COMPONENT_ENABLED_STATE_ENABLED:
-                    return true;
-                case PackageManager.COMPONENT_ENABLED_STATE_DEFAULT:
-                    return pm.getPackageInfo(packageName, 0).applicationInfo.enabled;
-                default:
-                    return false;
-            }
-        } catch (NameNotFoundException e) {
-            // Thrown by PackageManager.getPackageInfo if the package does not exist
-        } catch (IllegalArgumentException e) {
-            // Thrown by PackageManager.getApplicationEnabledSetting if the package does not exist
-        }
-        return false;
-    }
-
-    private void enableAndSetWebViewPackage(String packageName) {
-        getActivity().getPackageManager().setApplicationEnabledSetting(packageName,
-                PackageManager.COMPONENT_ENABLED_STATE_ENABLED, 0);
-        mWebViewProvider.setValue(packageName);
-        writeWebViewProviderOptions(packageName);
-    }
-
-    private void showEnableWebViewProviderAlert(final String packageName) {
-        EnableWebViewProviderDialogFragment.newInstance(packageName).show(
-                getChildFragmentManager(), EnableWebViewProviderDialogFragment.TAG);
-    }
-
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
         if (HDCP_CHECKING_KEY.equals(preference.getKey())) {
@@ -1934,24 +1902,8 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
             pokeSystemProperties();
             return true;
         } else if (preference == mWebViewProvider) {
-            if (newValue == null) {
-                Log.e(TAG, "Tried to set a null WebView provider");
-                return false;
-            }
-            String newWebViewPackageName = (String) newValue;
-            if (isPackageEnabled(newWebViewPackageName)) {
-                writeWebViewProviderOptions(newValue);
-                return true;
-            }
-            // Package is disabled or uninstalled, if it is simply disabled, check if the user wants
-            // to enable it
-            if (isPackageInstalled(getActivity(), newWebViewPackageName)) {
-                showEnableWebViewProviderAlert(newWebViewPackageName);
-                return false;
-            }
-            // Package has been uninstalled (could happen if the package was uninstalled between
-            // opening and closing the setting).
-            return false;
+            writeWebViewProviderOptions(newValue);
+            return true;
         } else if (preference == mLogdSize) {
             writeLogdSizeOption(newValue);
             return true;
@@ -2105,37 +2057,6 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
             return false;
         }
     }
-
-    public static class EnableWebViewProviderDialogFragment extends DialogFragment {
-        public static final String TAG = "EnableWebViewProviderDialogFragment";
-        private static final String PACKAGE_NAME_TAG = "packageName";
-
-        public static EnableWebViewProviderDialogFragment newInstance(String packageName) {
-            EnableWebViewProviderDialogFragment fragment
-                = new EnableWebViewProviderDialogFragment();
-            Bundle args = new Bundle();
-            args.putString(PACKAGE_NAME_TAG, packageName);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            final String packageName = getArguments().getString(PACKAGE_NAME_TAG);
-
-            return new AlertDialog.Builder(getActivity())
-                .setMessage(R.string.select_webview_provider_confirmation_text)
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        ((DevelopmentSettings)getParentFragment()).enableAndSetWebViewPackage(
-                            packageName);
-                    }
-                })
-                .setNegativeButton(android.R.string.cancel, null)
-                .create();
-        }
-    }
-
 
     /**
      * For Search.
