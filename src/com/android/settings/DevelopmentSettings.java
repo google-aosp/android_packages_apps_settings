@@ -733,24 +733,22 @@ public class DevelopmentSettings extends RestrictedSettingsFragment
                 Log.e(TAG, "No WebView providers available");
                 return;
             }
-            ArrayList<String> options = new ArrayList<String>();
-            ArrayList<String> values = new ArrayList<String>();
+            String[] options = new String[providers.length];
+            String[] values = new String[providers.length];
             for(int n = 0; n < providers.length; n++) {
-                if (isPackageEnabled(providers[n].packageName)) {
-                    options.add(providers[n].description);
-                    values.add(providers[n].packageName);
-                }
+                options[n] = providers[n].description;
+                values[n] = providers[n].packageName;
             }
-            mWebViewProvider.setEntries(options.toArray(new String[options.size()]));
-            mWebViewProvider.setEntryValues(values.toArray(new String[values.size()]));
+            mWebViewProvider.setEntries(options);
+            mWebViewProvider.setEntryValues(values);
 
             String value = webViewUpdateService.getCurrentWebViewPackageName();
             if (value == null) {
                 value = "";
             }
 
-            for (int i = 0; i < values.size(); i++) {
-                if (value.contentEquals(values.get(i))) {
+            for (int i = 0; i < values.length; i++) {
+                if (value.contentEquals(values[i])) {
                     mWebViewProvider.setValueIndex(i);
                     return;
                 }
