@@ -17,7 +17,7 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
 
     <!-- DU Tweaks -->
-    <string name="dirtytweaks_title">Dirty Tweaks</string>
+    <string name="dirtytweaks_title">AOSP Tweaks</string>
     <string name="header_category_dirtytweaks">Customization</string>
 
 </resources>
