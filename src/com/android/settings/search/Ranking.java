@@ -21,6 +21,7 @@ import com.android.settings.DateTimeSettings;
 import com.android.settings.DevelopmentSettings;
 import com.android.settings.DeviceInfoSettings;
 import com.android.settings.DisplaySettings;
+import com.android.settings.ButtonSettings;
 import com.android.settings.LegalSettings;
 import com.android.settings.PrivacySettings;
 import com.android.settings.ScreenPinningSettings;
@@ -88,6 +89,7 @@ public final class Ranking {
     public static final int RANK_DEVICE_INFO = 23;
     public static final int RANK_GESTURE = 24;
 
+    public static final int RANK_BUTTON = 25;
     public static final int RANK_UNDEFINED = -1;
     public static final int RANK_OTHERS = 1024;
     public static final int BASE_RANK_DEFAULT = 2048;
@@ -184,6 +186,9 @@ public final class Ranking {
         // Device infos
         sRankMap.put(DeviceInfoSettings.class.getName(), RANK_DEVICE_INFO);
         sRankMap.put(LegalSettings.class.getName(), RANK_DEVICE_INFO);
+
+        // Button
+        sRankMap.put(ButtonSettings.class.getName(), RANK_BUTTON);
 
         sBaseRankMap.put("com.android.settings", 0);
     }
