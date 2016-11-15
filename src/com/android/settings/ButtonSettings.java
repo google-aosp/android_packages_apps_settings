@@ -134,7 +134,7 @@ public class ButtonSettings extends SettingsPreferenceFragment implements
         boolean needsNavigationBar = false;
 	boolean KeyDisablerSupported = getResources().getBoolean(
 		R.bool.config_canDisableHardwareKeys);
-        if (KeyDisablerSupported) {
+        //if (KeyDisablerSupported) {
             try {
                 IWindowManager wm = WindowManagerGlobal.getWindowManagerService();
                 needsNavigationBar = wm.needsNavigationBar();
@@ -147,9 +147,9 @@ public class ButtonSettings extends SettingsPreferenceFragment implements
                 // Remove keys that can be provided by the navbar
                 updateDisableNavkeysOption();
             }
-        } else {
-            prefScreen.removePreference(mDisableNavigationKeys);
-        }
+        //} else {
+        //    prefScreen.removePreference(mDisableNavigationKeys);
+        //}
 
         if (hasHomeKey) {
             int defaultLongPressAction = res.getInteger(
