@@ -90,6 +90,11 @@
                 android:summary="@string/tap_to_wake_summary" />
 
         <PreferenceScreen
+                android:key="aosp_misc"
+                android:title="@string/aosp_misc_title"
+                android:fragment="com.android.settings.aosp.MiscSettings" />
+
+        <PreferenceScreen
                 android:key="font_size"
                 android:title="@string/title_font_size"
                 android:fragment="com.android.settings.accessibility.ToggleFontSizePreferenceFragment"
