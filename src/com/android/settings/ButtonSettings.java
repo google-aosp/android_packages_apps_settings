@@ -43,7 +43,6 @@ import com.android.internal.logging.MetricsProto.MetricsEvent;
 import com.android.settings.R;
 import com.android.settings.SettingsPreferenceFragment;
 import com.android.settings.Utils;
-import com.android.settings.cyanogenmod.ButtonBacklightBrightness;
 
 import java.io.BufferedReader;
 import java.io.FileOutputStream;
@@ -54,7 +53,6 @@ public class ButtonSettings extends SettingsPreferenceFragment implements
         Preference.OnPreferenceChangeListener {
     private static final String TAG = "SystemSettings";
 
-    private static final String KEY_BUTTON_BACKLIGHT = "button_backlight";
     private static final String KEY_HOME_LONG_PRESS = "hardware_keys_home_long_press";
     private static final String KEY_HOME_DOUBLE_TAP = "hardware_keys_home_double_tap";
     private static final String KEY_MENU_PRESS = "hardware_keys_menu_press";
@@ -196,12 +194,6 @@ public class ButtonSettings extends SettingsPreferenceFragment implements
         } else {
             prefScreen.removePreference(menuCategory);
         }
-
-        final ButtonBacklightBrightness backlight =
-                (ButtonBacklightBrightness) findPreference(KEY_BUTTON_BACKLIGHT);
-        if (!backlight.isButtonSupported() && !backlight.isKeyboardSupported()) {
-            prefScreen.removePreference(backlight);
-        }
     }
 
     private ListPreference initActionList(String key, int value) {
@@ -278,15 +270,23 @@ public class ButtonSettings extends SettingsPreferenceFragment implements
         writeLine(KeyDisablerPath, (enabled ? "0" : "1"));
 
         /* Save/restore button timeouts to disable them in softkey mode */
+        Editor editor = prefs.edit();
+
         if (enabled) {
+            int currentBrightness = Settings.System.getInt(context.getContentResolver(),
+                    Settings.System.BUTTON_BRIGHTNESS, defaultBrightness);
+            if (!prefs.contains("pre_navbar_button_backlight")) {
+                editor.putInt("pre_navbar_button_backlight", currentBrightness);
+            }
             Settings.System.putInt(context.getContentResolver(),
                     Settings.System.BUTTON_BRIGHTNESS, 0);
         } else {
-            int oldBright = prefs.getInt(ButtonBacklightBrightness.KEY_BUTTON_BACKLIGHT,
-                    defaultBrightness);
-            Settings.Secure.putInt(context.getContentResolver(),
-                    Settings.Secure.BUTTON_BRIGHTNESS, oldBright);
+            Settings.System.putInt(context.getContentResolver(),
+                    Settings.System.BUTTON_BRIGHTNESS,
+                    prefs.getInt("pre_navbar_button_backlight", defaultBrightness));
+            editor.remove("pre_navbar_button_backlight");
         }
+        editor.commit();
     }
 
     private void updateDisableNavkeysOption() {
@@ -306,15 +306,6 @@ public class ButtonSettings extends SettingsPreferenceFragment implements
                 (PreferenceCategory) prefScreen.findPreference(CATEGORY_ASSIST);
         final PreferenceCategory appSwitchCategory =
                 (PreferenceCategory) prefScreen.findPreference(CATEGORY_APPSWITCH);
-        final ButtonBacklightBrightness backlight =
-                (ButtonBacklightBrightness) prefScreen.findPreference(KEY_BUTTON_BACKLIGHT);
-
-        /* Toggle backlight control depending on navbar state, force it to
-           off if enabling */
-        if (backlight != null) {
-            backlight.setEnabled(!enabled);
-            backlight.updateSummary();
-        }
 
         /* Toggle hardkey control availability depending on navbar state */
         if (homeCategory != null) {
@@ -345,7 +336,6 @@ public class ButtonSettings extends SettingsPreferenceFragment implements
     @Override
     public boolean onPreferenceTreeClick(Preference preference) {
         if (preference == mDisableNavigationKeys) {
-
             writeDisableNavkeysOption(getActivity(), mDisableNavigationKeys.isChecked());
             updateDisableNavkeysOption();
         }
